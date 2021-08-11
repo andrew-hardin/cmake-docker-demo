@@ -21,11 +21,11 @@ add_executable(hello-world main.c)
 # That then becomes the OUTPUT of the command that
 # can be tracked in later steps.
 set(IMAGE_NAME "cmake-docker-example")
-set(IMAGE_HASH ${CMAKE_CURRENT_BINARY_DIR}/${IMAGE_NAME}.hash)
 set(DOCKERFILE ${CMAKE_CURRENT_LIST_DIR}/Dockerfile)
+set(_IMAGE_HASH ${CMAKE_CURRENT_BINARY_DIR}/${IMAGE_NAME}.hash)
 set(_BUILD_CONTEXT context)
 add_custom_command(
-    OUTPUT ${IMAGE_HASH}
+    OUTPUT ${_IMAGE_HASH}
     COMMENT "Building docker image \"${IMAGE_NAME}\""
 
     # Create a fresh context with the executable.
@@ -44,7 +44,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${_BUILD_CONTEXT}
 
     # Capture the image's hash and store it as a tracked output.
-    COMMAND ${DOCKER_CMD} images --no-trunc ${IMAGE_NAME} > ${IMAGE_HASH}
+    COMMAND ${DOCKER_CMD} images --no-trunc ${IMAGE_NAME} > ${_IMAGE_HASH}
 
     DEPENDS
         ${DOCKERFILE}
@@ -55,4 +55,4 @@ add_custom_command(
 # Running "make" will trigger the custom
 # command if it's out-of-date (e.g. the underlying
 # executable has changed or the dockerfile was updated).
-add_custom_target(docker_image ALL DEPENDS ${IMAGE_HASH})
+add_custom_target(docker_image ALL DEPENDS ${_IMAGE_HASH})
